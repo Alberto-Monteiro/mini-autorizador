@@ -1,4 +1,4 @@
-package com.rocksti.mini_autorizador;
+package com.rocksti.miniautorizador;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.rocksti.mini_autorizador;
+package com.rocksti.miniautorizador;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
