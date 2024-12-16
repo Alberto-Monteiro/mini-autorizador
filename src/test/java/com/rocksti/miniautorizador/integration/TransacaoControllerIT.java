@@ -113,4 +113,28 @@ class TransacaoControllerIT {
                 .as("Verifica se o corpo da resposta contém 'CARTAO_INEXISTENTE'")
                 .contains(ErroTransacao.CARTAO_INEXISTENTE.name());
     }
+
+    @Test
+    @Order(6)
+    public void realizarTransacoes_AteRetornarSaldoInsuficiente() {
+        TransacaoRequestDTO transacaoDTO = new TransacaoRequestDTO(VALID_CARD_NUMBER, VALID_PASSWORD, 200.0);
+
+        ResponseEntity<String> response1 = restTemplate.postForEntity(baseUrl(), transacaoDTO, String.class);
+        assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response1.getBody()).contains("OK");
+
+        ResponseEntity<String> response2 = restTemplate.postForEntity(baseUrl(), transacaoDTO, String.class);
+        assertThat(response2.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response2.getBody()).contains("OK");
+
+        ResponseEntity<String> response3 = restTemplate.postForEntity(baseUrl(), transacaoDTO, String.class);
+        assertThat(response3.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+        assertThat(response3.getBody()).contains(ErroTransacao.SALDO_INSUFICIENTE.name());
+
+        String saldoUrl = "http://localhost:" + port + "/cartoes/" + VALID_CARD_NUMBER;
+        ResponseEntity<String> saldoResponse = restTemplate.getForEntity(saldoUrl, String.class);
+
+        assertThat(saldoResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(saldoResponse.getBody()).isEqualTo("90.0");
+    }
 }

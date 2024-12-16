@@ -104,4 +104,36 @@ class TransacaoServiceTest {
 
         verify(cartaoRepository, never()).save(any(CartaoEntity.class));
     }
+
+    @Test
+    void realizarTransacoes_AteSaldoInsuficiente() {
+        CartaoEntity cartao = new CartaoEntity()
+                .setNumeroCartao(VALID_CARD_NUMBER)
+                .setSenha(VALID_PASSWORD)
+                .setSaldo(SALDO_INICIAL);
+        TransacaoRequestDTO request = new TransacaoRequestDTO(VALID_CARD_NUMBER, VALID_PASSWORD, 200.0);
+
+        when(cartaoRepository.findByNumeroCartao(VALID_CARD_NUMBER)).thenReturn(Optional.of(cartao));
+
+        transacaoService.autorizarTransacao(request);
+        assertThat(cartao.getSaldo())
+                .as("Após a primeira transação, o saldo deve ser 300.0")
+                .isEqualTo(300.0);
+
+        transacaoService.autorizarTransacao(request);
+        assertThat(cartao.getSaldo())
+                .as("Após a segunda transação, o saldo deve ser 100.0")
+                .isEqualTo(100.0);
+
+        assertThatThrownBy(() -> transacaoService.autorizarTransacao(request))
+                .as("A terceira transação deve lançar SaldoInsuficienteException")
+                .isInstanceOf(SaldoInsuficienteException.class)
+                .hasMessageContaining(ErroTransacao.SALDO_INSUFICIENTE.name());
+
+        assertThat(cartao.getSaldo())
+                .as("O saldo deve permanecer 100.0 após tentativa com saldo insuficiente")
+                .isEqualTo(100.0);
+
+        verify(cartaoRepository, times(2)).save(cartao);
+    }
 }
