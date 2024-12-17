@@ -233,7 +233,7 @@ public class TestSuit {
 
         @Test
         @Order(6)
-        public void realizarTransacoes_AteRetornarSaldoInsuficiente() {
+        void realizarTransacoes_AteRetornarSaldoInsuficiente() {
             TransacaoRequestDTO transacaoDTO = new TransacaoRequestDTO(VALID_CARD_NUMBER, VALID_PASSWORD, 200.0);
 
             ResponseEntity<String> response1 = restTemplate.postForEntity(baseUrl(), transacaoDTO, String.class);
